@@ -1,0 +1,420 @@
+/* Custom styles for construction store */
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f8f9fa;
+}
+
+/* Navbar styles */
+.navbar-brand {
+    font-weight: bold;
+    font-size: 1.5rem;
+}
+
+/* Card hover effects */
+.card {
+    transition: transform 0.2s, box-shadow 0.2s;
+    border: none;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+.product-card {
+    height: 100%;
+}
+
+.category-card {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.category-card .card-body {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+}
+
+.category-card .card-img-top {
+    flex-shrink: 0;
+}
+
+/* Product image styles */
+.card-img-top {
+    transition: transform 0.3s;
+}
+
+.product-card:hover .card-img-top {
+    transform: scale(1.05);
+}
+
+/* Button styles */
+.btn {
+    border-radius: 6px;
+    transition: all 0.2s;
+}
+
+.btn:hover {
+    transform: translateY(-1px);
+}
+
+/* Jumbotron styles */
+.jumbotron {
+    background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+    border-radius: 15px;
+}
+
+/* Footer styles */
+footer {
+    margin-top: auto;
+}
+
+/* Cart item styles */
+.cart-item {
+    border-bottom: 1px solid #dee2e6;
+    padding-bottom: 1rem;
+    margin-bottom: 1rem;
+}
+
+.cart-item:last-child {
+    border-bottom: none;
+}
+
+/* Review styles */
+.review-card {
+    transition: transform 0.2s;
+}
+
+.review-card:hover {
+    transform: translateY(-2px);
+}
+
+.star-rating {
+    color: #ffc107;
+}
+
+.star-rating .far {
+    color: #dee2e6;
+}
+
+.review-form .radio-select {
+    display: flex;
+    gap: 15px;
+}
+
+.review-form .radio-select label {
+    cursor: pointer;
+    padding: 5px 10px;
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+    transition: all 0.2s;
+}
+
+.review-form .radio-select label:hover {
+    background-color: #f8f9fa;
+}
+
+.review-form .radio-select input[type="radio"]:checked + label {
+    background-color: #007bff;
+    color: white;
+    border-color: #007bff;
+}
+
+/* Form styles */
+.form-control:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 0 0.2rem rgba(0,123,255,0.25);
+}
+
+/* Badge styles */
+.badge {
+    font-size: 0.75rem;
+}
+
+/* Table styles */
+.table th {
+    border-top: none;
+    font-weight: 600;
+    color: #495057;
+}
+
+/* Alert styles */
+.alert {
+    border-radius: 8px;
+    border: none;
+}
+
+/* Loading spinner */
+.spinner-border {
+    width: 3rem;
+    height: 3rem;
+}
+
+/* Category icons */
+.category-icon {
+    font-size: 3rem;
+    color: #007bff;
+    margin-bottom: 1rem;
+}
+
+/* Product price */
+.product-price {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #28a745;
+}
+
+/* Stock indicator */
+.stock-low {
+    color: #ffc107;
+}
+
+.stock-out {
+    color: #dc3545;
+}
+
+.stock-available {
+    color: #28a745;
+}
+
+/* Filter sidebar */
+.filter-sidebar {
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+/* Pagination */
+.pagination .page-link {
+    color: #007bff;
+}
+
+.pagination .page-item.active .page-link {
+    background-color: #007bff;
+    border-color: #007bff;
+}
+
+/* Breadcrumb */
+.breadcrumb {
+    background-color: transparent;
+    padding: 0;
+    margin-bottom: 1rem;
+}
+
+.breadcrumb-item + .breadcrumb-item::before {
+    content: ">";
+    color: #6c757d;
+}
+
+/* Social links */
+.social-links a {
+    font-size: 1.2rem;
+    transition: color 0.2s;
+}
+
+.social-links a:hover {
+    color: #007bff !important;
+}
+
+/* Star rating */
+.star-rating {
+    color: #ffc107;
+}
+
+.star-rating .far {
+    color: #dee2e6;
+}
+
+/* Order status badges */
+.status-pending {
+    background-color: #ffc107;
+}
+
+.status-confirmed {
+    background-color: #17a2b8;
+}
+
+.status-shipped {
+    background-color: #6f42c1;
+}
+
+.status-delivered {
+    background-color: #28a745;
+}
+
+.status-cancelled {
+    background-color: #dc3545;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .jumbotron {
+        padding: 2rem 1rem;
+    }
+    
+    .jumbotron h1 {
+        font-size: 2rem;
+    }
+    
+    .card-body {
+        padding: 1rem;
+    }
+    
+    .filter-sidebar {
+        margin-bottom: 2rem;
+    }
+}
+
+/* Search bar */
+.search-bar {
+    max-width: 400px;
+}
+
+/* Product gallery */
+.product-gallery img {
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+.product-gallery img:hover {
+    transform: scale(1.05);
+}
+
+/* Checkout steps */
+.checkout-steps {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 2rem;
+}
+
+.step {
+    flex: 1;
+    text-align: center;
+    position: relative;
+}
+
+.step::after {
+    content: '';
+    position: absolute;
+    top: 15px;
+    right: -50%;
+    width: 100%;
+    height: 2px;
+    background-color: #dee2e6;
+    z-index: -1;
+}
+
+.step:last-child::after {
+    display: none;
+}
+
+.step.active {
+    color: #007bff;
+}
+
+.step.active::after {
+    background-color: #007bff;
+}
+
+.step-number {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background-color: #dee2e6;
+    color: #fff;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 0.5rem;
+}
+
+.step.active .step-number {
+    background-color: #007bff;
+}
+
+/* Loading overlay */
+.loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(255,255,255,0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+}
+
+/* Form validation styles */
+.is-invalid {
+    border-color: #dc3545;
+}
+
+.invalid-feedback {
+    display: block;
+    width: 100%;
+    margin-top: 0.25rem;
+    font-size: 0.875em;
+    color: #dc3545;
+}
+
+/* Custom checkbox and radio styles */
+.form-check-input:checked {
+    background-color: #007bff;
+    border-color: #007bff;
+}
+
+/* Profile avatar */
+.avatar-upload {
+    position: relative;
+    display: inline-block;
+}
+
+.avatar-upload .avatar-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.5);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.3s;
+    cursor: pointer;
+    border-radius: 50%;
+}
+
+.avatar-upload:hover .avatar-overlay {
+    opacity: 1;
+}
+
+/* Smooth transitions */
+* {
+    transition: color 0.2s, background-color 0.2s, border-color 0.2s;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}

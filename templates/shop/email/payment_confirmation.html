@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Заказ оплачен</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            background: #007bff;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            border-radius: 5px 5px 0 0;
+        }
+        .content {
+            background: #f9f9f9;
+            padding: 30px;
+            border: 1px solid #ddd;
+        }
+        .order-info {
+            background: white;
+            padding: 20px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+        .footer {
+            background: #f8f9fa;
+            padding: 20px;
+            text-align: center;
+            border: 1px solid #ddd;
+            border-top: none;
+            border-radius: 0 0 5px 5px;
+        }
+        .btn {
+            display: inline-block;
+            padding: 12px 24px;
+            background: #28a745;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        .highlight {
+            background: #e9ecef;
+            padding: 10px;
+            border-radius: 3px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🎉 Ваш заказ оплачен!</h1>
+        <p>KG Style</p>
+    </div>
+    
+    <div class="content">
+        <p>Здравствуйте, {{ customer_name }}!</p>
+        
+        <p>Отличные новости! Ваш заказ <strong>#{{ order.id }}</strong> успешно оплачен и теперь готовится к отправке.</p>
+        
+        <div class="order-info">
+            <h3>Информация о заказе:</h3>
+            <p><strong>Номер заказа:</strong> #{{ order.id }}</p>
+            <p><strong>Сумма:</strong> {{ order.total_price }} сом</p>
+            <p><strong>Статус:</strong> <span class="highlight">{{ order.get_status_display }}</span></p>
+            <p><strong>Дата заказа:</strong> {{ order.created_at|date:"d.m.Y H:i" }}</p>
+            
+            <h4>Состав заказа:</h4>
+            {% for item in order.items.all %}
+            <p>• {{ item.product.name }} - {{ item.quantity }} шт. × {{ item.price }} сом</p>
+            {% endfor %}
+        </div>
+        
+        <p><strong>Что дальше?</strong></p>
+        <ul>
+            <li>Ваш заказ передан в сборочный цех</li>
+            <li>Мы отправим вам уведомление когда заказ будет готов</li>
+            <li>Ожидайте звонка от менеджера для подтверждения времени доставки</li>
+        </ul>
+        
+        <div style="text-align: center;">
+            <a href="#" class="btn">Отследить заказ</a>
+        </div>
+    </div>
+    
+    <div class="footer">
+        <p><strong>Спасибо за покупку!</strong></p>
+        <p>Если у вас есть вопросы, свяжитесь с нами:</p>
+        <p>📞 +996 555 123 456</p>
+        <p>📧 info@kgstyle.kg</p>
+        <p>🌐 www.kgstyle.kg</p>
+        
+        <hr style="margin: 20px 0; border: none; border-top: 1px solid #ddd;">
+        <p style="font-size: 12px; color: #666;">
+            Это автоматическое уведомление. Пожалуйста, не отвечайте на это письмо.
+        </p>
+    </div>
+</body>
+</html>

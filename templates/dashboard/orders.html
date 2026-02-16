@@ -1,0 +1,143 @@
+{% extends "base.html" %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}Заказы - Дашборд{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Заголовок -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 mb-0">📦 Управление заказами</h1>
+        <div class="d-flex align-items-center gap-2">
+            <a href="{% url 'dashboard:export_orders' %}" class="btn btn-success">
+                <i class="fas fa-file-excel"></i> Экспорт в Excel
+            </a>
+        </div>
+    </div>
+
+    <!-- Фильтры -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="get" class="row g-3">
+                <div class="col-md-3">
+                    <label for="status" class="form-label">Статус</label>
+                    <select name="status" id="status" class="form-select">
+                        <option value="">Все статусы</option>
+                        <option value="pending" {% if status == 'pending' %}selected{% endif %}>В обработке</option>
+                        <option value="confirmed" {% if status == 'confirmed' %}selected{% endif %}>Подтвержден</option>
+                        <option value="shipped" {% if status == 'shipped' %}selected{% endif %}>Отправлен</option>
+                        <option value="delivered" {% if status == 'delivered' %}selected{% endif %}>Доставлен</option>
+                        <option value="cancelled" {% if status == 'cancelled' %}selected{% endif %}>Отменен</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label for="date_from" class="form-label">Дата с</label>
+                    <input type="date" name="date_from" id="date_from" class="form-control" value="{{ date_from }}">
+                </div>
+                <div class="col-md-3">
+                    <label for="date_to" class="form-label">Дата по</label>
+                    <input type="date" name="date_to" id="date_to" class="form-control" value="{{ date_to }}">
+                </div>
+                <div class="col-md-3 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary me-2">Применить</button>
+                    <a href="{% url 'dashboard:orders' %}" class="btn btn-outline-secondary">Сбросить</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Таблица заказов -->
+    <div class="card">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead class="table-light">
+                        <tr>
+                            <th>ID</th>
+                            <th>Пользователь</th>
+                            <th>Имя</th>
+                            <th>Сумма</th>
+                            <th>Статус</th>
+                            <th>Дата</th>
+                            <th>Действия</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for order in orders %}
+                        <tr class="order-item">
+                            <td><strong>#{{ order.id }}</strong></td>
+                            <td>{{ order.user.username }}</td>
+                            <td>{{ order.first_name }} {{ order.last_name }}</td>
+                            <td>{{ order.total_price|intcomma }} сом</td>
+                            <td>
+                                {% if order.status == 'pending' %}
+                                    <span class="badge bg-warning">В обработке</span>
+                                {% elif order.status == 'confirmed' %}
+                                    <span class="badge bg-info">Подтвержден</span>
+                                {% elif order.status == 'shipped' %}
+                                    <span class="badge bg-primary">Отправлен</span>
+                                {% elif order.status == 'delivered' %}
+                                    <span class="badge bg-success">Доставлен</span>
+                                {% elif order.status == 'cancelled' %}
+                                    <span class="badge bg-danger">Отменен</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ order.created_at|date:"d.m.Y H:i" }}</td>
+                            <td>
+                                <a href="{% url 'shop:order_detail' order.id %}" class="btn btn-sm btn-outline-primary">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="7" class="text-center text-muted">Заказы не найдены</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- Пагинация -->
+            {% if orders.has_other_pages %}
+            <nav aria-label="Page navigation" class="mt-3">
+                <ul class="pagination justify-content-center">
+                    {% if orders.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ orders.previous_page_number }}{{ request.GET.urlencode }}">&laquo;</a>
+                        </li>
+                    {% else %}
+                        <li class="page-item disabled">
+                            <span class="page-link">&laquo;</span>
+                        </li>
+                    {% endif %}
+                    
+                    {% for num in orders.paginator.page_range %}
+                        {% if orders.number == num %}
+                            <li class="page-item active">
+                                <span class="page-link">{{ num }}</span>
+                            </li>
+                        {% elif num > orders.number|add:'-3' and num < orders.number|add:'3' %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ num }}{{ request.GET.urlencode }}">{{ num }}</a>
+                            </li>
+                        {% endif %}
+                    {% endfor %}
+                    
+                    {% if orders.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ orders.next_page_number }}{{ request.GET.urlencode }}">&raquo;</a>
+                        </li>
+                    {% else %}
+                        <li class="page-item disabled">
+                            <span class="page-link">&raquo;</span>
+                        </li>
+                    {% endif %}
+                </ul>
+            </nav>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

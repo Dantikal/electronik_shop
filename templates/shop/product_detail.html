@@ -1,0 +1,180 @@
+{% extends 'base.html' %}
+{% load media_url %}
+{% load widget_tweaks %}
+
+{% block title %}{{ product.name }} - СтройМатериал{% endblock %}
+
+{% block content %}
+<!-- Breadcrumb -->
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'shop:home' %}">Главная</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'shop:product_list' %}">Каталог</a></li>
+        <li class="breadcrumb-item"><a href="{{ product.category.get_absolute_url }}">{{ product.category.name }}</a></li>
+        <li class="breadcrumb-item active">{{ product.name }}</li>
+    </ol>
+</nav>
+
+<div class="row">
+    <!-- Product Images -->
+    <div class="col-md-6">
+        {% if product.get_image_url %}
+            <img src="{{ product.get_image_url }}" class="img-fluid rounded mb-3" alt="{{ product.name }}">
+        {% else %}
+            <div class="bg-light rounded d-flex align-items-center justify-content-center mb-3" style="height: 400px;">
+                <i class="fas fa-image fa-5x text-muted"></i>
+            </div>
+        {% endif %}
+    </div>
+    
+    <!-- Product Info -->
+    <div class="col-md-6">
+        <h1>{{ product.name }}</h1>
+        <p class="text-muted">Категория: <a href="{{ product.category.get_absolute_url }}">{{ product.category.name }}</a></p>
+        
+        <div class="mb-3">
+            <h2 class="text-primary">{{ product.price }} сом</h2>
+            <p class="text-muted">
+                {% if product.is_in_stock %}
+                    <span class="text-success">В наличии: {{ product.stock }} шт.</span>
+                {% else %}
+                    <span class="text-danger">Нет в наличии</span>
+                {% endif %}
+            </p>
+        </div>
+        
+        <div class="mb-4">
+            <h5>Описание</h5>
+            <p>{{ product.description|linebreaks }}</p>
+        </div>
+        
+        <!-- Add to Cart Form -->
+        {% if product.is_in_stock %}
+        <form action="{% url 'shop:cart_add' product.id %}" method="post" class="mb-4">
+            {% csrf_token %}
+            <div class="row align-items-center">
+                <div class="col-md-4">
+                    <label for="quantity" class="form-label">Количество:</label>
+                    <input type="number" name="quantity" class="form-control" value="1" min="1" max="{{ product.stock }}">
+                </div>
+                <div class="col-md-8">
+                    <button type="submit" class="btn btn-primary btn-lg w-100">
+                        <i class="fas fa-cart-plus"></i> Добавить в корзину
+                    </button>
+                </div>
+            </div>
+        </form>
+        {% else %}
+        <div class="alert alert-warning">
+            <i class="fas fa-exclamation-triangle"></i> Этот товар временно отсутствует
+        </div>
+        {% endif %}
+        
+        <!-- Product Features -->
+        <div class="card">
+            <div class="card-body">
+                <h6>Характеристики</h6>
+                <ul class="list-unstyled">
+                    <li><strong>Артикул:</strong> #{{ product.id }}</li>
+                    <li><strong>Категория:</strong> {{ product.category.name }}</li>
+                    <li><strong>Наличие:</strong> 
+                        {% if product.is_in_stock %}
+                            <span class="text-success">В наличии</span>
+                        {% else %}
+                            <span class="text-danger">Нет в наличии</span>
+                        {% endif %}
+                    </li>
+                    <li><strong>Дата добавления:</strong> {{ product.created_at|date:"d.m.Y" }}</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Related Products -->
+{% if related_products %}
+<section class="mt-5">
+    <h4>Похожие товары</h4>
+    <div class="row">
+        {% for related in related_products %}
+        <div class="col-md-3 mb-3">
+            <div class="card h-100">
+                {% if related.image %}
+                    <img src="{{ related.image.url|media_url }}" class="card-img-top" alt="{{ related.name }}" style="height: 150px; object-fit: cover;">
+                {% else %}
+                    <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 150px;">
+                        <i class="fas fa-image fa-2x text-muted"></i>
+                    </div>
+                {% endif %}
+                <div class="card-body">
+                    <h6 class="card-title">{{ related.name }}</h6>
+                    <span class="h5 text-primary mb-0">{{ related.price }} сом</span>
+                    <a href="{{ related.get_absolute_url }}" class="btn btn-outline-primary btn-sm">
+                        Подробнее
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</section>
+{% endif %}
+
+<!-- Reviews Section -->
+<section class="mt-5">
+    <h4>Отзывы</h4>
+    
+    {% if user.is_authenticated and not user_review %}
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5>Оставить отзыв</h5>
+        </div>
+        <div class="card-body">
+            <form action="{% url 'shop:add_review' product.id %}" method="post">
+                {% csrf_token %}
+                <div class="mb-3">
+                    <label for="{{ review_form.rating.id_for_label }}" class="form-label">Оценка:</label>
+                    <div class="review-form">
+                        {{ review_form.rating }}
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label for="{{ review_form.text.id_for_label }}" class="form-label">Текст отзыва:</label>
+                    {{ review_form.text|add_class:"form-control" }}
+                </div>
+                <button type="submit" class="btn btn-primary">Отправить отзыв</button>
+            </form>
+        </div>
+    </div>
+    {% endif %}
+    
+    <div class="row">
+        {% for review in reviews %}
+        <div class="col-md-6 mb-3">
+            <div class="card review-card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <h6 class="card-title">{{ review.user.username }}</h6>
+                        <div class="star-rating">
+                            {% for i in "12345" %}
+                                {% if forloop.counter <= review.rating %}
+                                    <i class="fas fa-star"></i>
+                                {% else %}
+                                    <i class="far fa-star"></i>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <p class="card-text">{{ review.text }}</p>
+                    <small class="text-muted">{{ review.created_at|date:"d.m.Y H:i" }}</small>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12">
+            <p class="text-muted">Отзывов пока нет. Будьте первым!</p>
+        </div>
+        {% endfor %}
+    </div>
+</section>
+{% endblock %}

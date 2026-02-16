@@ -1,0 +1,133 @@
+{% extends "base.html" %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}Товары - Дашборд{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Заголовок -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 mb-0">📊 Аналитика по товарам</h1>
+        <div class="d-flex align-items-center gap-2">
+            <a href="{% url 'dashboard:export_products' %}" class="btn btn-success">
+                <i class="fas fa-file-excel"></i> Экспорт в Excel
+            </a>
+        </div>
+    </div>
+
+    <!-- Поиск -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="get" class="row g-3">
+                <div class="col-md-8">
+                    <label for="search" class="form-label">Поиск по названию</label>
+                    <input type="text" name="search" id="search" class="form-control" 
+                           value="{{ search }}" placeholder="Введите название товара...">
+                </div>
+                <div class="col-md-4 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary me-2">Поиск</button>
+                    <a href="{% url 'dashboard:products' %}" class="btn btn-outline-secondary">Сбросить</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Таблица товаров -->
+    <div class="card">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead class="table-light">
+                        <tr>
+                            <th>ID</th>
+                            <th>Название</th>
+                            <th>Категория</th>
+                            <th>Цена</th>
+                            <th>На складе</th>
+                            <th>Продано</th>
+                            <th>Выручка</th>
+                            <th>Действия</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for product in products %}
+                        <tr class="product-item">
+                            <td>{{ product.id }}</td>
+                            <td>
+                                <strong>{{ product.name }}</strong>
+                                {% if not product.available %}
+                                    <span class="badge bg-danger ms-2">Не доступен</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ product.category.name }}</td>
+                            <td>{{ product.price|intcomma }} сом</td>
+                            <td>
+                                {% if product.stock > 0 %}
+                                    <span class="text-success">{{ product.stock }}</span>
+                                {% else %}
+                                    <span class="text-danger">0</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ product.total_sold|default:0 }}</td>
+                            <td>{{ product.total_revenue|default:0|intcomma }} сом</td>
+                            <td>
+                                <a href="{{ product.get_absolute_url }}" class="btn btn-sm btn-outline-primary" target="_blank">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                <a href="/admin/shop/product/{{ product.id }}/change/" class="btn btn-sm btn-outline-secondary" target="_blank">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="9" class="text-center text-muted">Товары не найдены</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- Пагинация -->
+            {% if products.has_other_pages %}
+            <nav aria-label="Page navigation" class="mt-3">
+                <ul class="pagination justify-content-center">
+                    {% if products.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ products.previous_page_number }}&search={{ search }}">&laquo;</a>
+                        </li>
+                    {% else %}
+                        <li class="page-item disabled">
+                            <span class="page-link">&laquo;</span>
+                        </li>
+                    {% endif %}
+                    
+                    {% for num in products.paginator.page_range %}
+                        {% if products.number == num %}
+                            <li class="page-item active">
+                                <span class="page-link">{{ num }}</span>
+                            </li>
+                        {% elif num > products.number|add:'-3' and num < products.number|add:'3' %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ num }}&search={{ search }}">{{ num }}</a>
+                            </li>
+                        {% endif %}
+                    {% endfor %}
+                    
+                    {% if products.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ products.next_page_number }}&search={{ search }}">&raquo;</a>
+                        </li>
+                    {% else %}
+                        <li class="page-item disabled">
+                            <span class="page-link">&raquo;</span>
+                        </li>
+                    {% endif %}
+                </ul>
+            </nav>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

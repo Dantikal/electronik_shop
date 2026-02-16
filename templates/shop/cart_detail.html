@@ -1,0 +1,119 @@
+{% extends 'base.html' %}
+{% load media_url %}
+
+{% block title %}Корзина - СтройМатериал{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-shopping-cart"></i> Корзина</h5>
+            </div>
+            <div class="card-body">
+                {% if cart.items.exists %}
+                    {% for item in cart.items.all %}
+                    <div class="cart-item">
+                        <div class="row align-items-center">
+                            <div class="col-md-2">
+                                {% if item.product.get_image_url %}
+                                    <img src="{{ item.product.get_image_url }}" class="img-fluid rounded" alt="{{ item.product.name }}">
+                                {% else %}
+                                    <div class="bg-light rounded d-flex align-items-center justify-content-center" style="height: 60px;">
+                                        <i class="fas fa-image text-muted"></i>
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-4">
+                                <h6>{{ item.product.name }}</h6>
+                                <small class="text-muted">{{ item.product.category.name }}</small>
+                            </div>
+                            <div class="col-md-2">
+                                <form action="{% url 'shop:cart_add' item.product.id %}" method="post" class="d-inline">
+                                    {% csrf_token %}
+                                    <input type="number" name="quantity" value="{{ item.quantity }}" min="1" max="{{ item.product.stock }}" class="form-control form-control-sm">
+                                    <input type="hidden" name="override" value="1">
+                                    <button type="submit" class="btn btn-sm btn-outline-primary mt-1">Обновить</button>
+                                </form>
+                            </div>
+                            <div class="col-md-2">
+                                <strong>{{ item.product.price }} сом</strong>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <strong>{{ item.total_price }} сом</strong>
+                                    <form action="{% url 'shop:cart_remove' item.product.id %}" method="post" class="d-inline">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-sm btn-outline-danger">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="text-center py-5">
+                        <i class="fas fa-shopping-cart fa-3x text-muted mb-3"></i>
+                        <p class="text-muted">Ваша корзина пуста</p>
+                        <a href="{% url 'shop:product_list' %}" class="btn btn-primary">
+                            <i class="fas fa-shopping-bag"></i> Перейти в каталог
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h5>Итого</h5>
+            </div>
+            <div class="card-body">
+                {% if cart.items.exists %}
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Товары:</span>
+                        <span>{{ cart.total_price }} сом</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Доставка:</span>
+                        <span>Бесплатно</span>
+                    </div>
+                    <hr>
+                    <div class="d-flex justify-content-between mb-3">
+                        <h5>К оплате:</h5>
+                        <h5>{{ cart.total_price }} сом</h5>
+                    </div>
+                    
+                    <a href="{% url 'shop:checkout' %}" class="btn btn-primary w-100 mb-2">
+                        <i class="fas fa-credit-card"></i> Оформить заказ
+                    </a>
+                    <a href="{% url 'shop:product_list' %}" class="btn btn-outline-secondary w-100">
+                        <i class="fas fa-arrow-left"></i> Продолжить покупки
+                    </a>
+                {% else %}
+                    <p class="text-muted">Корзина пуста</p>
+                    <a href="{% url 'shop:product_list' %}" class="btn btn-primary w-100">
+                        <i class="fas fa-shopping-bag"></i> Перейти в каталог
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Promo Code -->
+        <div class="card mt-3">
+            <div class="card-header">
+                <h6>Промокод</h6>
+            </div>
+            <div class="card-body">
+                <form class="d-flex">
+                    <input type="text" class="form-control me-2" placeholder="Введите промокод">
+                    <button type="submit" class="btn btn-outline-primary">Применить</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

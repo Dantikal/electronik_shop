@@ -1,0 +1,177 @@
+{% extends 'base.html' %}
+
+{% block title %}Оформление заказа - СтройМатериал{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h5>Оформление заказа</h5>
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    <h6 class="mb-3">Контактная информация</h6>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="first_name" class="form-label">Имя</label>
+                                <input type="text" class="form-control" id="first_name" name="first_name" value="{{ user.first_name }}" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="last_name" class="form-label">Фамилия</label>
+                                <input type="text" class="form-control" id="last_name" name="last_name" value="{{ user.last_name }}" required>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="email" class="form-label">Email</label>
+                                <input type="email" class="form-control" id="email" name="email" value="{{ user.email }}" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="phone" class="form-label">Телефон</label>
+                                <input type="tel" class="form-control" id="phone" name="phone" value="{{ user.userprofile.phone|default:'' }}" required>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <hr>
+                    
+                    <h6 class="mb-3">Адрес доставки</h6>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label for="postal_code" class="form-label">Почтовый индекс</label>
+                                <input type="text" class="form-control" id="postal_code" name="postal_code" value="{{ user.userprofile.postal_code|default:'' }}">
+                            </div>
+                        </div>
+                        <div class="col-md-8">
+                            <div class="mb-3">
+                                <label for="city" class="form-label">Город</label>
+                                <input type="text" class="form-control" id="city" name="city" value="{{ user.userprofile.city|default:'' }}" required>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="address" class="form-label">Адрес</label>
+                        <textarea class="form-control" id="address" name="address" rows="3" required>{{ user.userprofile.address|default:'' }}</textarea>
+                    </div>
+                    
+                    <hr>
+                    
+                    <h6 class="mb-3">Способ доставки</h6>
+                    <div class="mb-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="delivery_type" id="pickup" value="pickup" checked>
+                            <label class="form-check-label" for="pickup">
+                                Самовывоз (бесплатно)
+                            </label>
+                        </div>
+                
+                    </div>
+                    
+                    <hr>
+                    
+                    <h6 class="mb-3">Способ оплаты</h6>
+                    <div class="mb-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="payment_method" id="qr_code" value="qr_code" checked>
+                            <label class="form-check-label" for="qr_code">
+                                <i class="fas fa-qrcode"></i> Оплата по QR-коду (мБанк Кыргызстан)
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <hr>
+                    
+                    <h6 class="mb-3">Комментарий к заказу</h6>
+                    <div class="mb-3">
+                        <textarea class="form-control" name="comment" rows="3" placeholder="Укажите дополнительную информацию..."></textarea>
+                    </div>
+                    
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="fas fa-check"></i> Оформить заказ
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h5>Ваш заказ</h5>
+            </div>
+            <div class="card-body">
+                {% for item in cart.items.all %}
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <div>
+                        <strong>{{ item.product.name }}</strong><br>
+                        <small class="text-muted">{{ item.quantity }} шт. × {{ item.product.price }} сом</small>
+                    </div>
+                    <strong>{{ item.total_price }} сом</strong>
+                </div>
+                {% endfor %}
+                
+                <hr>
+                
+                <div class="d-flex justify-content-between mb-2">
+                    <span>Товары:</span>
+                    <span>{{ cart.total_price }} сом</span>
+                </div>
+                <div class="d-flex justify-content-between mb-2">
+                    <span>Доставка:</span>
+                    <span id="delivery-cost">0 сом</span>
+                </div>
+                <hr>
+                <div class="d-flex justify-content-between mb-3">
+                    <h5>Итого:</h5>
+                    <h5 id="total-cost">{{ cart.total_price }} сом</h5>
+                </div>
+                
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle"></i> После оформления заказа мы свяжемся с вами для подтверждения деталей.
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const deliveryRadios = document.querySelectorAll('input[name="delivery_type"]');
+    const deliveryCost = document.getElementById('delivery-cost');
+    const totalCost = document.getElementById('total-cost');
+    const cartTotal = parseFloat('{{ cart.total_price }}');
+    
+    function updateTotal() {
+        const selectedDelivery = document.querySelector('input[name="delivery_type"]:checked').value;
+        const deliveryFee = selectedDelivery === 'courier' ? 500 : 0;
+        
+        deliveryCost.textContent = deliveryFee + ' сом';
+        totalCost.textContent = (cartTotal + deliveryFee) + ' сом';
+    }
+    
+    deliveryRadios.forEach(radio => {
+        radio.addEventListener('change', updateTotal);
+    });
+    
+    // Инициализация при загрузке
+    updateTotal();
+});
+</script>
+{% endblock %}

@@ -1,0 +1,122 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Мои заказы - Конставары{% endblock %}
+
+{% block extra_js %}
+<script>
+function updateOrderStatus() {
+    {% for order in orders %}
+    // Проверяем статус каждого заказа
+    fetch(`/api/orders/{{ order.id }}/status/`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.status) {
+                // Находим элемент заказа и обновляем статус
+                const orderElement = document.querySelector(`[data-order-id="{{ order.id }}"]`);
+                if (orderElement) {
+                    const statusBadge = orderElement.querySelector('.order-status');
+                    const paymentStatus = orderElement.querySelector('.payment-status');
+                    
+                    // Обновляем бейдж статуса
+                    statusBadge.className = 'badge ' + getStatusBadgeClass(data.status);
+                    statusBadge.textContent = getStatusText(data.status);
+                    
+                    // Обновляем статус оплаты
+                    if (data.paid) {
+                        paymentStatus.innerHTML = '<span class="text-success"><i class="fas fa-check-circle"></i> Оплачен</span>';
+                    } else {
+                        paymentStatus.innerHTML = '<span class="text-warning"><i class="fas fa-clock"></i> Не оплачен</span>';
+                    }
+                    
+                    // Показываем уведомление об изменении
+                    if (data.status === 'confirmed') {
+                        showNotification(`Заказ #{{ order.id }} подтвержден!`, 'success');
+                    }
+                }
+            }
+        })
+        .catch(error => console.error('Ошибка обновления статуса:', error));
+    {% endfor %}
+}
+
+function getStatusBadgeClass(status) {
+    const classes = {
+        'pending': 'bg-warning',
+        'confirmed': 'bg-info', 
+        'delivered': 'bg-success',
+        'cancelled': 'bg-danger'
+    };
+    return classes[status] || 'bg-secondary';
+}
+
+function getStatusText(status) {
+    const texts = {
+        'pending': 'В обработке',
+        'confirmed': 'Подтвержден',
+        'delivered': 'Доставлен',
+        'cancelled': 'Отменен'
+    };
+    return texts[status] || status;
+}
+
+function showNotification(message, type) {
+    const alertDiv = document.createElement('div');
+    alertDiv.className = `alert alert-${type} alert-dismissible fade show`;
+    alertDiv.innerHTML = `
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+    
+    const container = document.querySelector('.container');
+    container.insertBefore(alertDiv, container.firstChild);
+    
+    // Автоматически скрываем через 5 секунд
+    setTimeout(() => {
+        alertDiv.remove();
+    }, 5000);
+}
+
+// Обновляем статус каждые 5 секунд
+setInterval(updateOrderStatus, 5000);
+
+// Обновляем сразу при загрузке
+document.addEventListener('DOMContentLoaded', updateOrderStatus);
+</script>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'shop:home' %}">Главная</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'accounts:profile' %}">Профиль</a></li>
+            <li class="breadcrumb-item active">Мои заказы</li>
+        </ol>
+    </nav>
+
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="mb-0">Мои заказы</h4>
+                </div>
+                <div class="card-body">
+                    {% include 'shop/profile_orders_content.html' with orders=orders %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-4 mb-4">
+        <div class="col-md-12">
+            <a href="{% url 'accounts:profile' %}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Вернуться в профиль
+            </a>
+            <a href="{% url 'shop:product_list' %}" class="btn btn-primary">
+                <i class="fas fa-shopping-cart"></i> Продолжить покупки
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

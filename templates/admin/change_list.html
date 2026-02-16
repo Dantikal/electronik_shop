@@ -1,0 +1,18 @@
+{% extends "admin/change_list.html" %}
+
+{% block result_list %}
+{% if cl.result_count == 0 %}
+<div class="alert alert-warning">
+    <strong>Нет {{ cl.opts.verbose_name_plural|lower }}!</strong> 
+    {% if cl.opts.verbose_name_plural == "Товары" %}
+        Создайте первый товар через кнопку "Добавить".
+    {% elif cl.opts.verbose_name_plural == "Конставары" %}
+        Создайте первую категорию через кнопку "Добавить".
+    {% else %}
+        Создайте первую запись через кнопку "Добавить".
+    {% endif %}
+</div>
+{% else %}
+{{ block.super }}
+{% endif %}
+{% endblock %}
