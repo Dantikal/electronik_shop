@@ -165,37 +165,84 @@ def checkout(request):
     if request.method == 'POST':
         # Создание заказа
         payment_method = request.POST.get('payment_method', 'qr_code')
-        order = Order.objects.create(
-            user=request.user,
-            first_name=request.user.first_name,
-            last_name=request.user.last_name,
-            email=request.user.email,
-            phone=request.POST.get('phone'),
-            address=request.POST.get('address'),
-            city=request.POST.get('city'),
-            postal_code=request.POST.get('postal_code', ''),
-            total_price=cart.total_price,
-            payment_method=payment_method
-        )
         
-        # Создаем элементы заказа
-        for item in cart.items.all():
-            OrderItem.objects.create(
-                order=order,
-                product=item.product,
-                quantity=item.quantity,
-                price=item.product.price
+        if payment_method == 'telegram':
+            # Отправляем корзину в Telegram
+            from telegram_bot.bot import send_cart_to_telegram
+            
+            user_info = {
+                'first_name': request.user.first_name,
+                'last_name': request.user.last_name,
+                'email': request.user.email,
+                'phone': request.POST.get('phone'),
+                'address': request.POST.get('address'),
+                'city': request.POST.get('city'),
+            }
+            
+            # Отправляем в Telegram
+            send_cart_to_telegram(cart, user_info)
+            
+            # Создаем заказ со статусом "В обработке"
+            order = Order.objects.create(
+                user=request.user,
+                first_name=request.user.first_name,
+                last_name=request.user.last_name,
+                email=request.user.email,
+                phone=request.POST.get('phone'),
+                address=request.POST.get('address'),
+                city=request.POST.get('city'),
+                postal_code=request.POST.get('postal_code', ''),
+                total_price=cart.total_price,
+                payment_method=payment_method
             )
-        
-        # Генерируем QR-код для заказа
-        order.generate_qr_code()
-        
-        # Очищаем корзину
-        cart.items.all().delete()
-        
-        # Перенаправляем на страницу QR-оплаты
-        messages.success(request, f'Заказ #{order.id} успешно оформлен!')
-        return redirect('shop:qr_payment', order_id=order.id)
+            
+            # Создаем элементы заказа
+            for item in cart.items.all():
+                OrderItem.objects.create(
+                    order=order,
+                    product=item.product,
+                    quantity=item.quantity,
+                    price=item.product.price
+                )
+            
+            # Очищаем корзину
+            cart.items.all().delete()
+            
+            messages.success(request, f'Заказ #{order.id} отправлен в Telegram! Ожидайте связи с менеджером.')
+            return redirect('shop:order_detail', pk=order.id)
+        else:
+            # Стандартное оформление через QR-код
+            order = Order.objects.create(
+                user=request.user,
+                first_name=request.user.first_name,
+                last_name=request.user.last_name,
+                email=request.user.email,
+                phone=request.POST.get('phone'),
+                address=request.POST.get('address'),
+                city=request.POST.get('city'),
+                postal_code=request.POST.get('postal_code', ''),
+                total_price=cart.total_price,
+                payment_method=payment_method
+            )
+            
+            # Создаем элементы заказа
+            for item in cart.items.all():
+                OrderItem.objects.create(
+                    order=order,
+                    product=item.product,
+                    quantity=item.quantity,
+                    price=item.product.price
+                )
+            
+            # Генерируем QR-код для заказа
+            order.generate_qr_code()
+            
+            # Очищаем корзину
+            cart.items.all().delete()
+            
+            # Перенаправляем на страницу QR-оплаты
+            messages.success(request, f'Заказ #{order.id} успешно оформлен!')
+            return redirect('shop:qr_payment', order_id=order.id)
     
     return render(request, 'shop/checkout.html', {'cart': cart})
 

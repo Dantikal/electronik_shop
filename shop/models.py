@@ -177,6 +177,7 @@ class Order(models.Model):
     
     PAYMENT_CHOICES = [
         ('qr_code', 'QR-код (мБанк)'),
+        ('telegram', 'Написать в Telegram'),
     ]
 
     user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name="Пользователь")

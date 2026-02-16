@@ -90,6 +90,12 @@
                                 <i class="fas fa-qrcode"></i> Оплата по QR-коду (мБанк Кыргызстан)
                             </label>
                         </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="payment_method" id="telegram" value="telegram">
+                            <label class="form-check-label" for="telegram">
+                                <i class="fab fa-telegram"></i> Написать в Telegram для оплаты
+                            </label>
+                        </div>
                     </div>
                     
                     <hr>
@@ -144,6 +150,12 @@
                 <div class="alert alert-info">
                     <i class="fas fa-info-circle"></i> После оформления заказа мы свяжемся с вами для подтверждения деталей.
                 </div>
+                
+                <div class="alert alert-success d-none" id="telegram-info">
+                    <i class="fab fa-telegram"></i> <strong>Оплата через Telegram:</strong><br>
+                    При выборе этого способа ваша корзина будет отправлена менеджеру в Telegram. 
+                    С вами свяжутся для подтверждения заказа и организации оплаты.
+                </div>
             </div>
         </div>
     </div>
@@ -154,8 +166,10 @@
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const deliveryRadios = document.querySelectorAll('input[name="delivery_type"]');
+    const paymentRadios = document.querySelectorAll('input[name="payment_method"]');
     const deliveryCost = document.getElementById('delivery-cost');
     const totalCost = document.getElementById('total-cost');
+    const telegramInfo = document.getElementById('telegram-info');
     const cartTotal = parseFloat('{{ cart.total_price }}');
     
     function updateTotal() {
@@ -166,12 +180,27 @@ document.addEventListener('DOMContentLoaded', function() {
         totalCost.textContent = (cartTotal + deliveryFee) + ' сом';
     }
     
+    function updatePaymentInfo() {
+        const selectedPayment = document.querySelector('input[name="payment_method"]:checked').value;
+        
+        if (selectedPayment === 'telegram') {
+            telegramInfo.classList.remove('d-none');
+        } else {
+            telegramInfo.classList.add('d-none');
+        }
+    }
+    
     deliveryRadios.forEach(radio => {
         radio.addEventListener('change', updateTotal);
     });
     
+    paymentRadios.forEach(radio => {
+        radio.addEventListener('change', updatePaymentInfo);
+    });
+    
     // Инициализация при загрузке
     updateTotal();
+    updatePaymentInfo();
 });
 </script>
 {% endblock %}

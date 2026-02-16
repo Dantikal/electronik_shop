@@ -84,6 +84,66 @@ class TelegramBot:
             items.append(f"и еще {order.items.count() - 3} шт.")
         return ", ".join(items)
     
+    async def send_cart_to_telegram(self, cart, user_info):
+        """Отправить корзину в Telegram для оплаты"""
+        if not self.bot or not self.admin_chat_id:
+            logger.warning("Telegram bot not configured, skipping cart notification")
+            return
+            
+        try:
+            # Формируем сообщение с информацией о корзине
+            from datetime import datetime
+            
+            message = f"""🛒 НОВЫЙ ЗАКАЗ ЧЕРЕЗ TELEGRAM
+──────────────────
+👤 Клиент:
+• Имя: {user_info.get('first_name', '')} {user_info.get('last_name', '')}
+• Email: {user_info.get('email', '')}
+• Тел: {user_info.get('phone', '')}
+──────────────────
+📍 Доставка:
+• Город: {user_info.get('city', '')}
+• Адрес: {user_info.get('address', '')}
+──────────────────
+📦 Товары в корзине:
+"""
+            
+            total_price = 0
+            for item in cart.items.all():
+                item_total = item.product.price * item.quantity
+                total_price += item_total
+                message += f"• {item.product.name} x{item.quantity} = {item_total} сом\n"
+            
+            message += f"""
+──────────────────
+💰 Итого: {total_price} сом
+⏰ Время: {datetime.now().strftime('%d.%m.%Y %H:%M')}
+──────────────────
+
+Для оплаты свяжитесь с клиентом и подтвердите заказ!
+"""
+            
+            # Создаем кнопки для действий
+            keyboard = [
+                [
+                    InlineKeyboardButton("✅ Подтвердить заказ", callback_data=f"confirm_telegram_order_{cart.id}"),
+                    InlineKeyboardButton("❌ Отклонить", callback_data=f"reject_telegram_order_{cart.id}")
+                ]
+            ]
+            reply_markup = InlineKeyboardMarkup(keyboard)
+            
+            # Отправляем сообщение
+            await self.bot.send_message(
+                chat_id=self.admin_chat_id,
+                text=message,
+                reply_markup=reply_markup
+            )
+            
+            logger.info(f"Отправлена корзина в Telegram для пользователя {user_info.get('email', '')}")
+            
+        except Exception as e:
+            logger.error(f"Ошибка отправки корзины в Telegram: {e}")
+    
     async def send_payment_confirmation(self, order):
         """Отправить уведомление клиенту о подтверждении оплаты"""
         try:
@@ -110,6 +170,11 @@ def send_payment_notification(order):
     """Синхронная обертка для отправки уведомления о платеже"""
     if telegram_bot.bot and telegram_bot.admin_chat_id:
         asyncio.run(telegram_bot.send_payment_notification(order))
+
+def send_cart_to_telegram(cart, user_info):
+    """Синхронная обертка для отправки корзины в Telegram"""
+    if telegram_bot.bot and telegram_bot.admin_chat_id:
+        asyncio.run(telegram_bot.send_cart_to_telegram(cart, user_info))
 
 def send_payment_confirmation(order):
     """Синхронная обертка для отправки подтверждения оплаты"""
