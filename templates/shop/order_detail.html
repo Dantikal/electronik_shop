@@ -86,18 +86,16 @@
                                         </button>
                                     {% endif %}
                                 {% elif order.payment_method == 'telegram' %}
-                                    {% load telegram_tags %}
                                     <div class="alert alert-success">
                                         <i class="fab fa-telegram"></i>
                                         <strong>Способ оплаты:</strong> Через Telegram
                                     </div>
                                     <div class="alert alert-info">
                                         <i class="fas fa-info-circle"></i>
-                                        Для оплаты заказа напишите менеджеру в Telegram. Вы можете использовать готовое сообщение ниже.
+                                        Для оплаты заказа напишите менеджеру в Telegram с номером заказа.
                                     </div>
                                     
-                                    {% telegram_order_message order as tg_message %}
-                                    <a href="https://t.me/{{ settings.TELEGRAM_MANAGER_USERNAME }}?text={{ tg_message }}" target="_blank" class="btn btn-primary btn-lg me-2">
+                                    <a href="https://t.me/{{ settings.TELEGRAM_MANAGER_USERNAME }}?text=Здравствуйте! Я хочу оплатить заказ #{{ order.id }}" target="_blank" class="btn btn-primary btn-lg me-2">
                                         <i class="fab fa-telegram"></i> Написать в Telegram
                                     </a>
                                     
@@ -108,16 +106,7 @@
                                             </div>
                                             <div class="card-body">
                                                 <small class="text-muted">
-                                                    Здравствуйте! Я хочу оплатить заказ #{{ order.id }}<br><br>
-                                                    📦 Товары:<br>
-                                                    {% for item in order.items.all %}
-                                                        • {{ item.product.name }} x{{ item.quantity }} = {{ item.total_price }} сом<br>
-                                                    {% endfor %}
-                                                    <br>
-                                                    💰 Итого: {{ order.total_price }} сом<br>
-                                                    👤 Имя: {{ order.first_name }} {{ order.last_name }}<br>
-                                                    📞 Тел: {{ order.phone }}<br>
-                                                    📍 Адрес: {{ order.address }}, {{ order.city }}
+                                                    Здравствуйте! Я хочу оплатить заказ #{{ order.id }}
                                                 </small>
                                             </div>
                                         </div>
