@@ -199,8 +199,13 @@ def checkout(request):
             
             messages.success(request, f'Заказ #{order.id} оформлен! Теперь напишите менеджеру в Telegram для оплаты.')
             
-            # Простое сообщение для Telegram
-            simple_message = f"Здравствуйте! Я хочу оплатить заказ #{order.id}"
+            # Формируем сообщение с товарами
+            product_names = []
+            for item in order.items.all():
+                product_names.append(f"{item.product.name} {item.quantity}")
+            
+            products_text = ", ".join(product_names)
+            simple_message = f"Я хочу оплатить заказ #{order.id}: {products_text}"
             
             # Перенаправляем в Telegram с простым сообщением
             return redirect(f'https://t.me/{telegram_username}?text={simple_message.replace(" ", "%20")}')

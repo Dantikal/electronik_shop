@@ -95,7 +95,9 @@
                                         Для оплаты заказа напишите менеджеру в Telegram с номером заказа.
                                     </div>
                                     
-                                    <a href="https://t.me/{{ settings.TELEGRAM_MANAGER_USERNAME }}?text=Здравствуйте! Я хочу оплатить заказ #{{ order.id }}" target="_blank" class="btn btn-primary btn-lg me-2">
+                                    {% load telegram_tags %}
+                                    {% telegram_simple_message order as tg_message %}
+                                    <a href="https://t.me/{{ settings.TELEGRAM_MANAGER_USERNAME }}?text={{ tg_message }}" target="_blank" class="btn btn-primary btn-lg me-2">
                                         <i class="fab fa-telegram"></i> Написать в Telegram
                                     </a>
                                     
@@ -106,7 +108,10 @@
                                             </div>
                                             <div class="card-body">
                                                 <small class="text-muted">
-                                                    Здравствуйте! Я хочу оплатить заказ #{{ order.id }}
+                                                    Я хочу оплатить заказ #{{ order.id }}: 
+                                                    {% for item in order.items.all %}
+                                                        {{ item.product.name }} {{ item.quantity }}{% if not forloop.last %}, {% endif %}
+                                                    {% endfor %}
                                                 </small>
                                             </div>
                                         </div>

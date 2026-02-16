@@ -21,3 +21,16 @@ def telegram_order_message(order):
     
     # Кодируем для URL
     return message.replace('\n', '%0A').replace(' ', '%20')
+
+@register.simple_tag
+def telegram_simple_message(order):
+    """Формирует простое сообщение для Telegram с названиями товаров"""
+    product_names = []
+    for item in order.items.all():
+        product_names.append(f"{item.product.name} {item.quantity}")
+    
+    products_text = ", ".join(product_names)
+    message = f"Я хочу оплатить заказ #{order.id}: {products_text}"
+    
+    # Кодируем для URL
+    return message.replace(' ', '%20')
