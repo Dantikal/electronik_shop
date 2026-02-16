@@ -190,6 +190,11 @@ def checkout(request):
                     price=item.product.price
                 )
             
+            # Формируем сообщение с товарами
+            items_text = ""
+            for item in order.items.all():
+                items_text += f"• {item.product.name} x{item.quantity} = {item.total_price} сом\n"
+            
             # Очищаем корзину
             cart.items.all().delete()
             
@@ -199,8 +204,18 @@ def checkout(request):
             
             messages.success(request, f'Заказ #{order.id} оформлен! Теперь напишите менеджеру в Telegram для оплаты.')
             
-            # Перенаправляем в Telegram
-            return redirect(f'https://t.me/{telegram_username}?text=Здравствуйте! Я хочу оплатить заказ #{order.id} на сумму {order.total_price} сом')
+            # Формируем полное сообщение для Telegram
+            full_message = f"""Здравствуйте! Я хочу оплатить заказ #{order.id}
+
+📦 Товары:
+{items_text}
+💰 Итого: {order.total_price} сом
+👤 Имя: {order.first_name} {order.last_name}
+📞 Тел: {order.phone}
+📍 Адрес: {order.address}, {order.city}"""
+            
+            # Перенаправляем в Telegram с полным сообщением
+            return redirect(f'https://t.me/{telegram_username}?text={full_message.replace(chr(10), "%0A").replace(" ", "%20")}')
         else:
             # Стандартное оформление через QR-код
             order = Order.objects.create(
