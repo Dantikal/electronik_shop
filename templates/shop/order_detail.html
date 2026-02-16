@@ -85,14 +85,26 @@
                                             <i class="fas fa-qrcode"></i> Сгенерировать QR-код
                                         </button>
                                     {% endif %}
+                                {% elif order.payment_method == 'telegram' %}
+                                    <div class="alert alert-success">
+                                        <i class="fab fa-telegram"></i>
+                                        <strong>Способ оплаты:</strong> Через Telegram
+                                    </div>
+                                    <div class="alert alert-info">
+                                        <i class="fas fa-info-circle"></i>
+                                        Ваш заказ уже отправлен в Telegram! Менеджер свяжется с вами для подтверждения и организации оплаты.
+                                    </div>
+                                    <a href="https://t.me/your_telegram_username" target="_blank" class="btn btn-primary btn-lg me-2">
+                                        <i class="fab fa-telegram"></i> Написать в Telegram
+                                    </a>
                                 {% else %}
                                     <div class="alert alert-info">
                                         <i class="fas fa-credit-card"></i>
                                         <strong>Способ оплаты:</strong> Банковская карта онлайн
                                     </div>
-                                    <a href="{% url 'shop:create_payment' order.id %}" class="btn btn-success btn-lg me-2">
-                                        <i class="fas fa-credit-card"></i> Оплатить картой
-                                    </a>
+                                    <button class="btn btn-success btn-lg me-2" disabled>
+                                        <i class="fas fa-credit-card"></i> Оплата картой временно недоступна
+                                    </button>
                                     <button onclick="changePaymentMethod({{ order.id }}, 'qr_code')" class="btn btn-outline-primary btn-lg">
                                         <i class="fas fa-exchange-alt"></i> Изменить на QR-код
                                     </button>
