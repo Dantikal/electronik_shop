@@ -212,7 +212,9 @@ def checkout(request):
             print(f"DEBUG: Сообщение для Telegram: {simple_message}")
             
             # Перенаправляем в Telegram с простым сообщением
-            return redirect(f'https://t.me/{telegram_username}?text={simple_message.replace(" ", "%20")}')
+            from urllib.parse import quote
+            encoded_message = quote(simple_message)
+            return redirect(f'https://t.me/{telegram_username}?text={encoded_message}')
         else:
             # Стандартное оформление через QR-код
             order = Order.objects.create(

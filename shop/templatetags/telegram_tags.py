@@ -33,4 +33,5 @@ def telegram_simple_message(order):
     message = f"Я хочу оплатить заказ #{order.id}: {products_text}"
     
     # Кодируем для URL
-    return message.replace(' ', '%20')
+    from urllib.parse import quote
+    return quote(message)
