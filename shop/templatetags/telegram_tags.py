@@ -25,11 +25,11 @@ def telegram_order_message(order):
 @register.simple_tag
 def telegram_simple_message(order):
     """Формирует простое сообщение для Telegram с названиями товаров"""
-    product_names = []
+    product_lines = []
     for item in order.items.all():
-        product_names.append(f"{item.product.name} {item.quantity}")
+        product_lines.append(f"{item.product.name} {item.quantity} шт.")
     
-    products_text = ", ".join(product_names)
+    products_text = "%0A".join(product_lines) if product_lines else "нет товаров"
     message = f"Я хочу оплатить заказ #{order.id}: {products_text}"
     
     # Кодируем для URL

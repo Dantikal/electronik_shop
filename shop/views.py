@@ -200,15 +200,15 @@ def checkout(request):
             messages.success(request, f'Заказ #{order.id} оформлен! Теперь напишите менеджеру в Telegram для оплаты.')
             
             # Формируем сообщение с товарами
-            product_names = []
+            product_lines = []
             for item in order.items.all():
-                product_names.append(f"{item.product.name} {item.quantity}")
+                product_lines.append(f"{item.product.name} {item.quantity} шт.")
             
-            products_text = ", ".join(product_names) if product_names else "нет товаров"
+            products_text = "%0A".join(product_lines) if product_lines else "нет товаров"
             simple_message = f"Я хочу оплатить заказ #{order.id}: {products_text}"
             
             # Отладка - выводим в консоль
-            print(f"DEBUG: Товары в заказе {order.id}: {product_names}")
+            print(f"DEBUG: Товары в заказе {order.id}: {product_lines}")
             print(f"DEBUG: Сообщение для Telegram: {simple_message}")
             
             # Перенаправляем в Telegram с простым сообщением
