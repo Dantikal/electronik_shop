@@ -92,11 +92,16 @@
                                     </div>
                                     <div class="alert alert-info">
                                         <i class="fas fa-info-circle"></i>
-                                        Ваш заказ уже отправлен в Telegram! Менеджер свяжется с вами для подтверждения и организации оплаты.
+                                        Для оплаты заказа напишите менеджеру в Telegram. Вы можете использовать готовое сообщение ниже.
                                     </div>
-                                    <a href="https://t.me/your_telegram_username" target="_blank" class="btn btn-primary btn-lg me-2">
+                                    <a href="https://t.me/{{ settings.TELEGRAM_MANAGER_USERNAME }}?text=Здравствуйте! Я хочу оплатить заказ #{{ order.id }} на сумму {{ order.total_price }} сом" target="_blank" class="btn btn-primary btn-lg me-2">
                                         <i class="fab fa-telegram"></i> Написать в Telegram
                                     </a>
+                                    <div class="mt-2">
+                                        <small class="text-muted">
+                                            <i class="fas fa-copy"></i> Текст сообщения: "Здравствуйте! Я хочу оплатить заказ #{{ order.id }} на сумму {{ order.total_price }} сом"
+                                        </small>
+                                    </div>
                                 {% else %}
                                     <div class="alert alert-info">
                                         <i class="fas fa-credit-card"></i>

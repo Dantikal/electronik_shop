@@ -12,5 +12,6 @@ def shop_settings(request):
             'SHOP_ADDRESS_1': getattr(settings, 'SHOP_ADDRESS_1', ''),
             'SHOP_ADDRESS_2': getattr(settings, 'SHOP_ADDRESS_2', ''),
             'SHOP_MAP_URL': getattr(settings, 'SHOP_MAP_URL', '#'),
+            'TELEGRAM_MANAGER_USERNAME': getattr(settings, 'TELEGRAM_MANAGER_USERNAME', 'your_manager_username'),
         }
     }

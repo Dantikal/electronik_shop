@@ -167,21 +167,6 @@ def checkout(request):
         payment_method = request.POST.get('payment_method', 'qr_code')
         
         if payment_method == 'telegram':
-            # Отправляем корзину в Telegram
-            from telegram_bot.bot import send_cart_to_telegram
-            
-            user_info = {
-                'first_name': request.user.first_name,
-                'last_name': request.user.last_name,
-                'email': request.user.email,
-                'phone': request.POST.get('phone'),
-                'address': request.POST.get('address'),
-                'city': request.POST.get('city'),
-            }
-            
-            # Отправляем в Telegram
-            send_cart_to_telegram(cart, user_info)
-            
             # Создаем заказ со статусом "В обработке"
             order = Order.objects.create(
                 user=request.user,
@@ -208,8 +193,14 @@ def checkout(request):
             # Очищаем корзину
             cart.items.all().delete()
             
-            messages.success(request, f'Заказ #{order.id} отправлен в Telegram! Ожидайте связи с менеджером.')
-            return redirect('shop:order_detail', pk=order.id)
+            # Формируем сообщение для пользователя
+            from django.conf import settings
+            telegram_username = getattr(settings, 'TELEGRAM_MANAGER_USERNAME', 'your_manager_username')
+            
+            messages.success(request, f'Заказ #{order.id} оформлен! Теперь напишите менеджеру в Telegram для оплаты.')
+            
+            # Перенаправляем в Telegram
+            return redirect(f'https://t.me/{telegram_username}?text=Здравствуйте! Я хочу оплатить заказ #{order.id} на сумму {order.total_price} сом')
         else:
             # Стандартное оформление через QR-код
             order = Order.objects.create(

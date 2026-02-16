@@ -15,7 +15,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = config('SECRET_KEY', default='django-insecure-change-this-in-production')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 # ==================== ALLOWED HOSTS & CSRF SETTINGS ====================
 # Для разработки с ngrok разрешаем все поддомены ngrok
@@ -189,6 +189,7 @@ CRISPY_TEMPLATE_PACK = "bootstrap5"
 # ==================== TELEGRAM BOT SETTINGS ====================
 TELEGRAM_BOT_TOKEN = config('TELEGRAM_BOT_TOKEN', default='')
 TELEGRAM_ADMIN_CHAT_ID = config('TELEGRAM_ADMIN_CHAT_ID', default='')
+TELEGRAM_MANAGER_USERNAME = config('TELEGRAM_MANAGER_USERNAME', default='Dantikal')
 
 # ==================== SHOP CONTACTS ====================
 SHOP_NAME = "Neznaika KG"
