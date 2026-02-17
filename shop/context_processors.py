@@ -1,4 +1,5 @@
 from django.conf import settings
+from .models import Category
 
 def shop_settings(request):
     """Добавляет настройки магазина в контекст всех шаблонов"""
@@ -14,4 +15,10 @@ def shop_settings(request):
             'SHOP_MAP_URL': getattr(settings, 'SHOP_MAP_URL', '#'),
             'TELEGRAM_MANAGER_USERNAME': getattr(settings, 'TELEGRAM_MANAGER_USERNAME', 'your_manager_username'),
         }
+    }
+
+def tool_categories(request):
+    """Context processor для добавления категорий инструментов во все шаблоны"""
+    return {
+        'tool_categories': Category.objects.all().order_by('name')
     }

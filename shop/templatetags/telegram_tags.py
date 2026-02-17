@@ -29,9 +29,9 @@ def telegram_simple_message(order):
     for item in order.items.all():
         product_lines.append(f"{item.product.name} {item.quantity} шт.")
     
-    products_text = "%0A".join(product_lines) if product_lines else "нет товаров"
+    products_text = "\n".join(product_lines) if product_lines else "нет товаров"
     message = f"Я хочу оплатить заказ #{order.id}: {products_text}"
     
-    # Кодируем для URL
+    # Кодируем для URL только пробелы и спецсимволы, оставляем \n как есть
     from urllib.parse import quote
-    return quote(message)
+    return quote(message, safe='\n')

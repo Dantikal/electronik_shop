@@ -9,6 +9,10 @@ class ProductFilterForm(forms.Form):
         empty_label="Все категории",
         label="Категория"
     )
+    brand = forms.CharField(
+        required=False,
+        label="Бренд"
+    )
     price_min = forms.DecimalField(
         required=False,
         min_value=0,

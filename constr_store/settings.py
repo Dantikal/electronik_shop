@@ -124,6 +124,7 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'shop.context_processors.shop_settings',
+                'shop.context_processors.tool_categories',
             ],
         },
     },
@@ -189,14 +190,14 @@ CRISPY_TEMPLATE_PACK = "bootstrap5"
 # ==================== TELEGRAM BOT SETTINGS ====================
 TELEGRAM_BOT_TOKEN = config('TELEGRAM_BOT_TOKEN', default='')
 TELEGRAM_ADMIN_CHAT_ID = config('TELEGRAM_ADMIN_CHAT_ID', default='')
-TELEGRAM_MANAGER_USERNAME = config('TELEGRAM_MANAGER_USERNAME', default='Dantikal')
+TELEGRAM_MANAGER_USERNAME = config('TELEGRAM_MANAGER_USERNAME', default='Talant_bey')
 
 # ==================== SHOP CONTACTS ====================
-SHOP_NAME = "Neznaika KG"
-SHOP_PHONE_1 = "+996 504 38 44 33"
-SHOP_PHONE_2 = "+996 707 54 53 64"
-SHOP_PHONE_3 = "+996 706 00 42 40"
-SHOP_INSTAGRAM = "https://www.instagram.com/neznaika_kg?igsh=MTdxZXdiamw0ZXR0cA=="
+SHOP_NAME = "Poweractiontools"
+SHOP_PHONE_1 = "831595711"
+SHOP_PHONE_2 = "831595711"
+SHOP_PHONE_3 = "831595711"
+SHOP_INSTAGRAM = "https://www.instagram.com/power.action.kyrgyzstan?igsh=MW85OXNqMTVsdHpuaA=="
 SHOP_ADDRESS_1 = "Дордой джунхай 5-й проход, 507-508"
 SHOP_ADDRESS_2 = "Шанхай Шн25-26"
 SHOP_MAP_URL = "https://2gis.kg/bishkek/geo/70030076969219714/74.617278,42.937095"

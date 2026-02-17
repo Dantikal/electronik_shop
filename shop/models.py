@@ -14,8 +14,8 @@ class Category(models.Model):
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="Дата создания")
 
     class Meta:
-        verbose_name = "Конставар"
-        verbose_name_plural = "Конставары"
+        verbose_name = "Категория инструментов"
+        verbose_name_plural = "Категории инструментов"
         ordering = ['name']
 
     def __str__(self):
@@ -68,6 +68,7 @@ class Product(models.Model):
     stock = models.PositiveIntegerField(default=0, verbose_name="Количество на складе")
     available = models.BooleanField(default=True, verbose_name="Доступен")
     category = models.ForeignKey(Category, on_delete=models.CASCADE, verbose_name="Категория")
+    brand = models.CharField(max_length=100, blank=True, verbose_name="Бренд")
     image = models.ImageField(upload_to='products/', blank=True, verbose_name="Изображение")
     image_data = models.TextField(blank=True, null=True, verbose_name="Изображение в Base64")
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="Дата создания")
@@ -176,7 +177,6 @@ class Order(models.Model):
     ]
     
     PAYMENT_CHOICES = [
-        ('qr_code', 'QR-код (мБанк)'),
         ('telegram', 'Написать в Telegram'),
     ]
 
@@ -193,7 +193,7 @@ class Order(models.Model):
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending', verbose_name="Статус")
     total_price = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Общая сумма")
     paid = models.BooleanField(default=False, verbose_name="Оплачен")
-    payment_method = models.CharField(max_length=20, choices=PAYMENT_CHOICES, default='qr_code', verbose_name="Способ оплаты")
+    payment_method = models.CharField(max_length=20, choices=PAYMENT_CHOICES, default='telegram', verbose_name="Способ оплаты")
     qr_code = models.CharField(max_length=50, unique=True, blank=True, null=True, verbose_name="QR-код")
     qr_payment_data = models.TextField(blank=True, null=True, verbose_name="Данные для QR-оплаты")
 

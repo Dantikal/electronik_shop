@@ -23,9 +23,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('shop.urls')),
     path('accounts/', include('accounts.urls')),
-    path('accounts/', include('allauth.urls')),
     path('telegram/', include('telegram_bot.urls')),
-    path('dashboard/', include('dashboard.urls')),
 ]
 
 if settings.DEBUG:

@@ -18,12 +18,10 @@ from .forms import ProductFilterForm, ReviewForm, CartAddProductForm
 
 
 def home(request):
-    categories = Category.objects.annotate(product_count=Count('product'))[:6]
     featured_products = Product.objects.filter(available=True)[:8]
     new_products = Product.objects.filter(available=True).order_by('-created_at')[:8]
     
     context = {
-        'categories': categories,
         'featured_products': featured_products,
         'new_products': new_products,
     }
@@ -43,6 +41,8 @@ class ProductListView(ListView):
         if form.is_valid():
             if form.cleaned_data['category']:
                 queryset = queryset.filter(category=form.cleaned_data['category'])
+            if form.cleaned_data['brand']:
+                queryset = queryset.filter(brand__icontains=form.cleaned_data['brand'])
             if form.cleaned_data['price_min']:
                 queryset = queryset.filter(price__gte=form.cleaned_data['price_min'])
             if form.cleaned_data['price_max']:
@@ -154,7 +154,6 @@ def cart_remove(request, product_id):
     return redirect('shop:cart_detail')
 
 
-@login_required
 def checkout(request):
     cart = get_or_create_cart(request)
     
@@ -164,109 +163,80 @@ def checkout(request):
     
     if request.method == 'POST':
         # Создание заказа
-        payment_method = request.POST.get('payment_method', 'qr_code')
+        payment_method = 'telegram'  # Только Telegram оплата
         
-        if payment_method == 'telegram':
-            # Создаем заказ со статусом "В обработке"
-            order = Order.objects.create(
-                user=request.user,
-                first_name=request.user.first_name,
-                last_name=request.user.last_name,
-                email=request.user.email,
-                phone=request.POST.get('phone'),
-                address=request.POST.get('address'),
-                city=request.POST.get('city'),
-                postal_code=request.POST.get('postal_code', ''),
-                total_price=cart.total_price,
-                payment_method=payment_method
+        # Получаем данные из формы
+        first_name = request.POST.get('first_name')
+        last_name = request.POST.get('last_name')
+        email = request.POST.get('email')
+        phone = request.POST.get('phone')
+        address = request.POST.get('address')
+        city = request.POST.get('city')
+        postal_code = request.POST.get('postal_code', '')
+        
+        # Создаем пользователя или используем существующего
+        user = None
+        if request.user.is_authenticated:
+            user = request.user
+        
+        # Создаем заказ
+        order = Order.objects.create(
+            user=user,
+            first_name=first_name,
+            last_name=last_name,
+            email=email,
+            phone=phone,
+            address=address,
+            city=city,
+            postal_code=postal_code,
+            total_price=cart.total_price,
+            payment_method=payment_method
+        )
+        
+        # Создаем элементы заказа
+        for item in cart.items.all():
+            OrderItem.objects.create(
+                order=order,
+                product=item.product,
+                quantity=item.quantity,
+                price=item.product.price
             )
-            
-            # Создаем элементы заказа
-            for item in cart.items.all():
-                OrderItem.objects.create(
-                    order=order,
-                    product=item.product,
-                    quantity=item.quantity,
-                    price=item.product.price
-                )
-            
-            # Очищаем корзину
-            cart.items.all().delete()
-            
-            # Формируем сообщение для пользователя
-            from django.conf import settings
-            telegram_username = getattr(settings, 'TELEGRAM_MANAGER_USERNAME', 'your_manager_username')
-            
-            messages.success(request, f'Заказ #{order.id} оформлен! Теперь напишите менеджеру в Telegram для оплаты.')
-            
-            # Формируем сообщение с товарами
-            product_lines = []
-            for item in order.items.all():
-                product_lines.append(f"{item.product.name} {item.quantity} шт.")
-            
-            products_text = "%0A".join(product_lines) if product_lines else "нет товаров"
-            simple_message = f"Я хочу оплатить заказ #{order.id}: {products_text}"
-            
-            # Отладка - выводим в консоль
-            print(f"DEBUG: Товары в заказе {order.id}: {product_lines}")
-            print(f"DEBUG: Сообщение для Telegram: {simple_message}")
-            
-            # Перенаправляем в Telegram с простым сообщением
-            from urllib.parse import quote
-            encoded_message = quote(simple_message)
-            return redirect(f'https://t.me/{telegram_username}?text={encoded_message}')
-        else:
-            # Стандартное оформление через QR-код
-            order = Order.objects.create(
-                user=request.user,
-                first_name=request.user.first_name,
-                last_name=request.user.last_name,
-                email=request.user.email,
-                phone=request.POST.get('phone'),
-                address=request.POST.get('address'),
-                city=request.POST.get('city'),
-                postal_code=request.POST.get('postal_code', ''),
-                total_price=cart.total_price,
-                payment_method=payment_method
-            )
-            
-            # Создаем элементы заказа
-            for item in cart.items.all():
-                OrderItem.objects.create(
-                    order=order,
-                    product=item.product,
-                    quantity=item.quantity,
-                    price=item.product.price
-                )
-            
-            # Генерируем QR-код для заказа
-            order.generate_qr_code()
-            
-            # Очищаем корзину
-            cart.items.all().delete()
-            
-            # Перенаправляем на страницу QR-оплаты
-            messages.success(request, f'Заказ #{order.id} успешно оформлен!')
-            return redirect('shop:qr_payment', order_id=order.id)
+        
+        # Очищаем корзину
+        cart.items.all().delete()
+        
+        # Формируем сообщение для пользователя
+        from django.conf import settings
+        telegram_username = getattr(settings, 'TELEGRAM_MANAGER_USERNAME', 'your_manager_username')
+        
+        messages.success(request, f'Заказ #{order.id} оформлен! Теперь напишите менеджеру в Telegram для оплаты.')
+        
+        # Формируем сообщение с товарами
+        product_lines = []
+        for item in order.items.all():
+            product_lines.append(f"{item.product.name} {item.quantity} шт.")
+        
+        products_text = "\n".join(product_lines) if product_lines else "нет товаров"
+        simple_message = f"Я хочу оплатить заказ #{order.id}: {products_text}"
+        
+        # Отладка - выводим в консоль
+        print(f"DEBUG: Товары в заказе {order.id}: {product_lines}")
+        print(f"DEBUG: Сообщение для Telegram: {repr(simple_message)}")
+        
+        # Перенаправляем в Telegram с настоящими переносами строк
+        from urllib.parse import quote
+        encoded_message = quote(simple_message, safe='\n')
+        return redirect(f'https://t.me/{telegram_username}?text={encoded_message}')
     
     return render(request, 'shop/checkout.html', {'cart': cart})
 
 
-@login_required
-def order_detail(request, pk):
-    order = get_object_or_404(Order, pk=pk, user=request.user)
-    return render(request, 'shop/order_detail.html', {'order': order})
-
-
-@login_required
-def order_list(request):
-    orders = Order.objects.filter(user=request.user).order_by('-created_at')
-    return render(request, 'shop/order_list.html', {'orders': orders})
-
-
-@login_required
 @require_POST
 def add_review(request, product_id):
+    if not request.user.is_authenticated:
+        messages.error(request, 'Для добавления отзыва необходимо войти в систему')
+        return redirect('shop:product_detail', slug=Product.objects.get(id=product_id).slug)
+    
     product = get_object_or_404(Product, id=product_id)
     form = ReviewForm(request.POST)
     
@@ -302,35 +272,38 @@ def search(request):
     })
 
 
-@login_required
 def qr_payment(request, order_id):
     """Страница с QR-кодом для оплаты заказа"""
-    order = get_object_or_404(Order, id=order_id, user=request.user)
+    if request.user.is_authenticated:
+        order = get_object_or_404(Order, id=order_id, user=request.user)
+    else:
+        # Для неавторизованных пользователей ищем заказ по email
+        email = request.GET.get('email')
+        if not email:
+            messages.error(request, 'Доступ запрещен. Укажите email в параметрах запроса.')
+            return redirect('shop:home')
+        order = get_object_or_404(Order, id=order_id, email=email)
     
-    # Генерируем уникальный код для заказа
-    order.generate_qr_code()
-    
-    # Получаем активный банковский счет
-    bank_account = BankAccount.get_active()
-    
-    if not bank_account:
-        messages.error(request, 'QR-код оплаты временно недоступен')
-        return redirect('shop:order_detail', pk=order.pk)
-    
-    context = {
-        'order': order,
-        'bank_account': bank_account,
-        'payment_description': order.get_payment_description(),
-    }
-    
-    return render(request, 'shop/qr_payment.html', context)
+    # Эта функция больше не нужна, так как мы убрали QR-оплату
+    messages.error(request, 'QR-оплата отключена. Используйте Telegram для оплаты.')
+    return redirect('shop:home')
 
 
-@login_required
 def order_status_api(request, order_id):
     """API для проверки статуса заказа"""
     try:
-        order = get_object_or_404(Order, id=order_id, user=request.user)
+        if request.user.is_authenticated:
+            order = get_object_or_404(Order, id=order_id, user=request.user)
+        else:
+            # Для неавторизованных пользователей ищем заказ по email
+            email = request.GET.get('email')
+            if not email:
+                return JsonResponse({
+                    'paid': False,
+                    'status': 'error',
+                    'error': 'Доступ запрещен. Укажите email в параметрах запроса.'
+                }, status=403)
+            order = get_object_or_404(Order, id=order_id, email=email)
         
         print(f"Проверка статуса заказа #{order_id}: paid={order.paid}, status={order.status}")  # Отладка
         
@@ -348,23 +321,29 @@ def order_status_api(request, order_id):
         }, status=500)
 
 
-@csrf_exempt
 def generate_qr_api(request, order_id):
     """API для генерации QR-кода заказа"""
     if request.method != 'POST':
         return JsonResponse({'success': False, 'error': 'Method not allowed'}, status=405)
     
     try:
-        order = get_object_or_404(Order, id=order_id, user=request.user)
+        if request.user.is_authenticated:
+            order = get_object_or_404(Order, id=order_id, user=request.user)
+        else:
+            # Для неавторизованных пользователей ищем заказ по email
+            email = request.GET.get('email')
+            if not email:
+                return JsonResponse({
+                    'success': False,
+                    'error': 'Доступ запрещен. Укажите email в параметрах запроса.'
+                }, status=403)
+            order = get_object_or_404(Order, id=order_id, email=email)
         
-        # Генерируем QR-код
-        qr_code = order.generate_qr_code()
-        
+        # QR-оплата отключена
         return JsonResponse({
-            'success': True,
-            'qr_code': qr_code,
-            'message': 'QR-код успешно сгенерирован'
-        })
+            'success': False,
+            'error': 'QR-оплата отключена. Используйте Telegram для оплаты.'
+        }, status=400)
         
     except Exception as e:
         return JsonResponse({
@@ -380,7 +359,17 @@ def change_payment_method_api(request, order_id):
         return JsonResponse({'success': False, 'error': 'Method not allowed'}, status=405)
     
     try:
-        order = get_object_or_404(Order, id=order_id, user=request.user)
+        if request.user.is_authenticated:
+            order = get_object_or_404(Order, id=order_id, user=request.user)
+        else:
+            # Для неавторизованных пользователей ищем заказ по email
+            email = request.GET.get('email')
+            if not email:
+                return JsonResponse({
+                    'success': False,
+                    'error': 'Доступ запрещен. Укажите email в параметрах запроса.'
+                }, status=403)
+            order = get_object_or_404(Order, id=order_id, email=email)
         
         # Проверяем, что заказ не оплачен
         if order.paid:
@@ -393,19 +382,16 @@ def change_payment_method_api(request, order_id):
         data = json.loads(request.body)
         new_method = data.get('payment_method')
         
-        if new_method not in ['qr_code']:
+        # Только Telegram оплата доступна
+        if new_method not in ['telegram']:
             return JsonResponse({
                 'success': False,
-                'error': 'Неверный способ оплаты'
+                'error': 'Доступен только способ оплаты: Telegram'
             }, status=400)
         
         # Изменяем способ оплаты
         order.payment_method = new_method
         order.save()
-        
-        # Если это QR-код, генерируем его
-        if new_method == 'qr_code':
-            order.generate_qr_code()
         
         return JsonResponse({
             'success': True,
@@ -427,7 +413,17 @@ def notify_payment_api(request, order_id):
         return JsonResponse({'success': False, 'error': 'Method not allowed'}, status=405)
     
     try:
-        order = get_object_or_404(Order, id=order_id, user=request.user)
+        if request.user.is_authenticated:
+            order = get_object_or_404(Order, id=order_id, user=request.user)
+        else:
+            # Для неавторизованных пользователей ищем заказ по email
+            email = request.GET.get('email')
+            if not email:
+                return JsonResponse({
+                    'success': False,
+                    'error': 'Доступ запрещен. Укажите email в параметрах запроса.'
+                }, status=403)
+            order = get_object_or_404(Order, id=order_id, email=email)
         
         # Отправляем уведомление в Telegram
         try:

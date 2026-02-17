@@ -18,7 +18,7 @@
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
         <div class="container">
             <a class="navbar-brand" href="{% url 'shop:home' %}">
-                <i class="fas fa-pen"></i> {{ settings.SHOP_NAME }}
+                <i class="fas fa-tools"></i> {{ settings.SHOP_NAME }}
             </a>
             
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
@@ -30,6 +30,21 @@
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'shop:home' %}">Главная</a>
                     </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="toolsDropdown" role="button" data-bs-toggle="dropdown">
+                            Инструменты
+                        </a>
+                        <ul class="dropdown-menu">
+                            {% for category in tool_categories %}
+                            <li><a class="dropdown-item" href="{% url 'shop:category_detail' category.slug %}">
+                                <i class="fas fa-tools me-2"></i>
+                                {{ category.name }}
+                            </a></li>
+                            {% endfor %}
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="{% url 'shop:product_list' %}">Все инструменты</a></li>
+                        </ul>
+                    </li>
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'shop:product_list' %}">Каталог</a>
                     </li>
@@ -37,7 +52,7 @@
                 
                 <!-- Search -->
                 <form class="d-flex me-3" action="{% url 'shop:search' %}" method="get">
-                    <input class="form-control me-2" type="search" name="q" placeholder="Поиск товаров..." aria-label="Search">
+                    <input class="form-control me-2" type="search" name="q" placeholder="Поиск инструментов..." aria-label="Search">
                     <button class="btn btn-outline-light" type="submit">
                         <i class="fas fa-search"></i>
                     </button>
@@ -45,7 +60,7 @@
                 
                 <ul class="navbar-nav">
                     <li class="nav-item">
-                        <a class="nav-link text-success" href="https://wa.me/996504384433" target="_blank">
+                        <a class="nav-link text-success" href="https://wa.me/996554544501" target="_blank">
                             <i class="fab fa-whatsapp"></i> WhatsApp
                         </a>
                     </li>
@@ -59,37 +74,17 @@
                                 {% endif %}
                             </a>
                         </li>
-                        {% if user.is_staff or user.is_superuser %}
-                        <li class="nav-item">
-                            <a class="nav-link" href="{% url 'dashboard:home' %}">
-                                <i class="fas fa-chart-line"></i> Дашборд
-                            </a>
-                        </li>
-                        {% endif %}
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
                                 <i class="fas fa-user"></i> {{ user.username }}
                             </a>
                             <ul class="dropdown-menu">
-                                <li><a class="dropdown-item" href="{% url 'accounts:profile' %}">Профиль</a></li>
-                                <li><a class="dropdown-item" href="{% url 'accounts:profile_orders' %}">Мои заказы</a></li>
-                                {% if user.is_staff %}
-                                    <li><hr class="dropdown-divider"></li>
-                                    <li><a class="dropdown-item" href="/admin/">Админка</a></li>
-                                {% endif %}
                                 <li><hr class="dropdown-divider"></li>
                                 <li><a class="dropdown-item" href="#" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">Выход</a></li>
                                 <form id="logout-form" method="post" action="{% url 'accounts:logout' %}" style="display: none;">
                                     {% csrf_token %}
                                 </form>
                             </ul>
-                        </li>
-                    {% else %}
-                        <li class="nav-item">
-                            <a class="nav-link" href="{% url 'accounts:login' %}">Войти</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{% url 'accounts:signup' %}">Регистрация</a>
                         </li>
                     {% endif %}
                 </ul>
@@ -120,12 +115,12 @@
             <div class="row">
                 <div class="col-md-4">
                     <h5>{{ settings.SHOP_NAME }}</h5>
-                    <p>Канцелярские товары для школы и офиса</p>
+                    <p>Профессиональные электроинструменты</p>
                     <div class="social-links">
                         <a href="{{ settings.SHOP_INSTAGRAM }}" class="text-white me-2" target="_blank">
                             <i class="fab fa-instagram"></i>
                         </a>
-                        <a href="https://wa.me/996504384433" class="text-white me-2" target="_blank">
+                        <a href="https://wa.me/996554544501" class="text-white me-2" target="_blank">
                             <i class="fab fa-whatsapp"></i>
                         </a>
                     </div>
@@ -144,7 +139,7 @@
                 <div class="col-md-4">
                     <h5>Техподдержка</h5>
                     <div class="mb-3">
-                        <a href="https://wa.me/996504384433" class="btn btn-success btn-lg w-100" target="_blank">
+                        <a href="https://wa.me/996554544501" class="btn btn-success btn-lg w-100" target="_blank">
                             <i class="fab fa-whatsapp me-2"></i> WhatsApp
                         </a>
                     </div>
@@ -169,7 +164,7 @@
     <script src="{% static 'js/main.js' %}"></script>
     
     <!-- Плавающая кнопка WhatsApp -->
-    <a href="https://wa.me/996504384433" class="whatsapp-float" target="_blank">
+    <a href="https://wa.me/996554544501" class="whatsapp-float" target="_blank">
         <i class="fab fa-whatsapp"></i>
     </a>
     

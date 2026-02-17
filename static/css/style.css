@@ -1,14 +1,53 @@
-/* Custom styles for construction store */
+/* Custom styles for Poweractiontools - Tools Store */
 
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     background-color: #f8f9fa;
 }
 
+/* Tools Store Theme Colors */
+:root {
+    --primary-color: #ff6b35; /* Orange for tools */
+    --secondary-color: #2c3e50; /* Dark blue-gray */
+    --accent-color: #e74c3c; /* Red accent */
+    --success-color: #27ae60; /* Green */
+}
+
+/* Override Bootstrap primary color */
+.navbar-dark.bg-primary {
+    background-color: var(--primary-color) !important;
+}
+
+.btn-primary {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+.btn-primary:hover {
+    background-color: #e55a2b;
+    border-color: #e55a2b;
+}
+
 /* Navbar styles */
 .navbar-brand {
     font-weight: bold;
     font-size: 1.5rem;
+    color: white !important;
+}
+
+.navbar-brand:hover {
+    color: #f8f9fa !important;
+}
+
+/* Tools category dropdown */
+.dropdown-menu {
+    border: none;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+.dropdown-item:hover {
+    background-color: var(--primary-color);
+    color: white;
 }
 
 /* Card hover effects */
@@ -20,11 +59,38 @@ body {
 
 .card:hover {
     transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    box-shadow: 0 8px 16px rgba(0,0,0,0.15);
 }
 
 .product-card {
     height: 100%;
+    position: relative;
+}
+
+.product-card .badge {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    z-index: 10;
+}
+
+/* Tools specific styles */
+.tools-hero {
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+    color: white;
+    padding: 60px 0;
+    margin-bottom: 40px;
+}
+
+.tools-hero h1 {
+    font-size: 3rem;
+    font-weight: bold;
+    margin-bottom: 20px;
+}
+
+.tools-hero p {
+    font-size: 1.2rem;
+    opacity: 0.9;
 }
 
 .category-card {

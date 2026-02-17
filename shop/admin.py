@@ -65,9 +65,9 @@ class OrderAdmin(admin.ModelAdmin):
 
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
-    list_display = ('name', 'category', 'price', 'stock', 'available', 'created_at')
+    list_display = ('name', 'category', 'brand', 'price', 'stock', 'available', 'created_at')
     list_filter = ('category', 'available', 'created_at')
-    search_fields = ('name', 'description', 'category__name')
+    search_fields = ('name', 'description', 'category__name', 'brand')
     list_editable = ('price', 'stock', 'available')
     prepopulated_fields = {'slug': ('name',)}
     readonly_fields = ('created_at', 'updated_at')
@@ -86,7 +86,7 @@ class ProductAdmin(admin.ModelAdmin):
     
     fieldsets = (
         ('Основная информация', {
-            'fields': ('name', 'slug', 'category', 'description')
+            'fields': ('name', 'slug', 'category', 'brand', 'description')
         }),
         ('Цена и наличие', {
             'fields': ('price', 'stock', 'available')
